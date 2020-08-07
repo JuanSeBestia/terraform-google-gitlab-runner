@@ -17,8 +17,8 @@
 # Service account for the Gitlab CI runner.  It doesn't run builds but it spawns other instances that do.
 resource "google_service_account" "ci_runner" {
   project      = var.gcp_project
-  account_id   = "gitlab-ci-runner"
-  display_name = "GitLab CI Runner"
+  account_id   = "gitlab-ci-runner-${var.ci_runner_instance_name}"
+  display_name = "GitLab CI Runner ${var.ci_runner_instance_name}"
 }
 resource "google_project_iam_member" "instanceadmin_ci_runner" {
   project = var.gcp_project
@@ -39,8 +39,8 @@ resource "google_project_iam_member" "securityadmin_ci_runner" {
 # Service account for Gitlab CI build instances that are dynamically spawned by the runner.
 resource "google_service_account" "ci_worker" {
   project      = var.gcp_project
-  account_id   = "gitlab-ci-worker"
-  display_name = "GitLab CI Worker"
+  account_id   = "gitlab-ci-worker-${var.ci_runner_instance_name}"
+  display_name = "GitLab CI Worker ${var.ci_runner_instance_name}"
 }
 
 # Allow GitLab CI runner to use the worker service account.
