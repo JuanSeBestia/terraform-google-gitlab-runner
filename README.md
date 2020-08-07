@@ -24,13 +24,14 @@ provider "google" {
 
 # Install the GitLab CI Runner infrastructure
 module "ci" {
-  source      = "digio/gitlab-runner/google"
-  version     = "0.0.11"
+  source      = "git@iteragit.iteratec.de:DevOps/terraform/gcp/terraform-google-gitlab-runner.git"
 
   gcp_project = var.gcp_project
   gcp_zone    = var.gcp_zone
   gitlab_url  = var.gitlab_url
   ci_token    = var.ci_token
+  ci_runner_instance_name = var.ci_runner_instance_name
+  ci_concurrency = var.ci_concurrency
 }
 
 # Grant the storage.admin role to the CI workers.  Add other roles as required.
