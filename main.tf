@@ -108,7 +108,7 @@ sudo gitlab-runner register -n \
     --registration-token ${var.ci_token} \
     --executor "docker+machine" \
     --docker-image "alpine:latest" \
-    --docker-privileged "false" \
+    --docker-privileged \
     --tag-list "${var.ci_runner_tags}" \
     --run-untagged="${var.ci_runner_untagged}" \
     --machine-idle-time ${var.ci_worker_idle_time} \
