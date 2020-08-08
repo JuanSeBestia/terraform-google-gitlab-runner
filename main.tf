@@ -17,8 +17,8 @@
 # Service account for the Gitlab CI runner.  It doesn't run builds but it spawns other instances that do.
 resource "google_service_account" "ci_runner" {
   project      = var.gcp_project
-  account_id   = "gitlab-ci-runner"
-  display_name = "GitLab CI Runner"
+  account_id   = "ci-runner-${var.ci_runner_instance_name}"
+  display_name = "GitLab CI Runner ${var.ci_runner_instance_name}"
 }
 resource "google_project_iam_member" "instanceadmin_ci_runner" {
   project = var.gcp_project
@@ -39,8 +39,8 @@ resource "google_project_iam_member" "securityadmin_ci_runner" {
 # Service account for Gitlab CI build instances that are dynamically spawned by the runner.
 resource "google_service_account" "ci_worker" {
   project      = var.gcp_project
-  account_id   = "gitlab-ci-worker"
-  display_name = "GitLab CI Worker"
+  account_id   = "ci-worker-${var.ci_runner_instance_name}"
+  display_name = "GitLab CI Worker ${var.ci_runner_instance_name}"
 }
 
 # Allow GitLab CI runner to use the worker service account.
@@ -99,6 +99,8 @@ docker-machine rm -y ${var.ci_runner_instance_name}-test-machine
 echo "Setting GitLab concurrency"
 sed -i "s/concurrent = .*/concurrent = ${var.ci_concurrency}/" /etc/gitlab-runner/config.toml
 
+echo ${google_service_account_key.cache-user.private_key} | base64 -d > /etc/gitlab-runner/key.json
+
 echo "Registering GitLab CI runner with GitLab instance."
 sudo gitlab-runner register -n \
     --name "gcp-${var.ci_runner_instance_name}" \
@@ -106,6 +108,7 @@ sudo gitlab-runner register -n \
     --registration-token ${var.ci_token} \
     --executor "docker+machine" \
     --docker-image "alpine:latest" \
+    --docker-privileged \
     --tag-list "${var.ci_runner_tags}" \
     --run-untagged="${var.ci_runner_untagged}" \
     --machine-idle-time ${var.ci_worker_idle_time} \
@@ -115,9 +118,14 @@ sudo gitlab-runner register -n \
     --machine-machine-options "google-machine-type=${var.ci_worker_instance_type}" \
     --machine-machine-options "google-disk-type=pd-ssd" \
     --machine-machine-options "google-disk-size=40" \
+    --machine-machine-options "google-preemptible=true" \
     --machine-machine-options "google-zone=${var.gcp_zone}" \
     --machine-machine-options "google-service-account=${google_service_account.ci_worker.email}" \
-    --machine-machine-options "google-scopes=https://www.googleapis.com/auth/cloud-platform"
+    --machine-machine-options "google-scopes=https://www.googleapis.com/auth/cloud-platform" \
+    --cache-type gcs \
+    --cache-shared \
+    --cache-gcs-bucket-name ${google_storage_bucket.cache.name} \
+    --cache-gcs-credentials-file /etc/gitlab-runner/key.json
 
 echo "GitLab CI Runner installation complete"
 SCRIPT
