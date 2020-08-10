@@ -58,8 +58,8 @@ variable "ci_worker_instance_type" {
   description = "The worker instance size.  This can be adjusted to meet the demands of builds jobs."
 }
 variable "ci_runner_tags" {
-    type        = string
-    default     = "gcp, devops"
+    type        = list
+    default     = ["gcp", "devops"]
     description = "Gitlab Tags for the new runner"
 }
 # Create the Gitlab CI Runner instance.
