@@ -68,3 +68,8 @@ variable "ci_runner_untagged" {
     default     = "true"
     description = "also run jobs without any tags"
 }
+variable "ci_runner_instance_labels" {
+    type = map
+    default = {}
+    description = "labels to identify the virtual machine"
+}

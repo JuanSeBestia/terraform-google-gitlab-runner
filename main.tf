@@ -55,7 +55,7 @@ resource "google_compute_instance" "ci_runner" {
   name         = var.ci_runner_instance_name
   machine_type = var.ci_runner_instance_type
   zone         = var.gcp_zone
-  tags         = var.ci_runner_tags
+  labels       = var.ci_runner_instance_labels
 
   allow_stopping_for_update = true
 
@@ -111,7 +111,7 @@ sudo gitlab-runner register -n \
     --docker-image "alpine:latest" \
     --docker-privileged \
     --docker-volumes "/cache" \
-    --tag-list "$join(",",var.ci_runner_tags)}" \
+    --tag-list "${join(",",var.ci_runner_tags)}" \
     --run-untagged="${var.ci_runner_untagged}" \
     --machine-idle-time ${var.ci_worker_idle_time} \
     --machine-machine-driver google \
