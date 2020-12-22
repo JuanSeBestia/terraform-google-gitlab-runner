@@ -22,6 +22,10 @@ variable "gcp_zone" {
   type        = string
   description = "The GCP zone to deploy the runner into."
 }
+variable "cache_bucket_name" {
+  type        = string
+  description = "This is used for optimice cache"
+}
 variable "gitlab_url" {
   type        = string
   description = "The URL of the GitLab server hosting the projects to be built."
@@ -73,3 +77,20 @@ variable "ci_runner_instance_labels" {
     default = {}
     description = "labels to identify the virtual machine"
 }
+variable "ci_runner_instance_booot_disk" {
+    type = map
+    default = {
+      initialize_params {
+        image = "centos-cloud/centos-7"
+        size  = "20"
+        type  = "pd-standard"
+      }
+    }
+    description = "values to intializ e instance"
+}
+variable "network" {
+    type = string
+    default = "default"
+    description = "network to be instaled instance"
+}
+

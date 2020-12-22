@@ -50,6 +50,13 @@ resource "google_service_account_iam_member" "ci_worker_ci_runner" {
   member             = "serviceAccount:${google_service_account.ci_runner.email}"
 }
 
+# Allow GitLab CI runner to use cache bucket.
+# TODO: add only var.cache bucket
+resource "google_project_iam_member" "worker_storage_admin" {
+  role   = "roles/storage.admin"
+  member = "serviceAccount:${google_service_account.ci_runner.email}"
+}
+
 resource "google_compute_instance" "ci_runner" {
   project      = var.gcp_project
   name         = var.ci_runner_instance_name
@@ -68,7 +75,7 @@ resource "google_compute_instance" "ci_runner" {
   }
 
   network_interface {
-    network = "default"
+    network = var.network
 
     access_config {
       // Ephemeral IP
@@ -100,7 +107,7 @@ docker-machine rm -y ${var.ci_runner_instance_name}-test-machine
 echo "Setting GitLab concurrency"
 sed -i "s/concurrent = .*/concurrent = ${var.ci_concurrency}/" /etc/gitlab-runner/config.toml
 
-echo ${google_service_account_key.cache-user.private_key} | base64 -d > /etc/gitlab-runner/key.json
+echo ${google_service_account.ci_runner.private_key} | base64 -d > /etc/gitlab-runner/key.json
 
 echo "Registering GitLab CI runner with GitLab instance."
 sudo gitlab-runner register -n \
@@ -126,7 +133,7 @@ sudo gitlab-runner register -n \
     --machine-machine-options "google-scopes=https://www.googleapis.com/auth/cloud-platform" \
     --cache-type gcs \
     --cache-shared \
-    --cache-gcs-bucket-name ${google_storage_bucket.cache.name} \
+    --cache-gcs-bucket-name ${var.cache_bucket_name} \
     --cache-gcs-credentials-file /etc/gitlab-runner/key.json
 
 echo "GitLab CI Runner installation complete"

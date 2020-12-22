@@ -28,6 +28,7 @@ module "ci" {
 
   gcp_project = var.gcp_project
   gcp_zone    = var.gcp_zone
+  cache_bucket_name = "gitlab-runner-cache"
   gitlab_url  = var.gitlab_url
   ci_token    = var.ci_token
   ci_runner_instance_name = var.ci_runner_instance_name
