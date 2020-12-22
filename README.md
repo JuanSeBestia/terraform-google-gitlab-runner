@@ -8,13 +8,13 @@ The long-running runner instance runs under a `gitlab-ci-runner` service account
 
 The worker instances run under a `gitlab-ci-worker` service account.  This account will need to be granted any privileges required to perform build and deploy activities.  For example, the `storage.admin` role can be granted to the worker account as follows:
 
-# Usage
+## Usage
 
 To use this module you can create a main.tf file similar to the following example.  Note that you
 will need to modify the roles assigned to the CI worker service account based on your specific
 project needs.
 
-```
+``` tf
 # Configure GCP provider
 provider "google" {
   version = "~> 2.13"
