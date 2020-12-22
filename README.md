@@ -24,7 +24,7 @@ provider "google" {
 
 # Install the GitLab CI Runner infrastructure
 module "ci" {
-  source      = "git@iteragit.iteratec.de:DevOps/terraform/gcp/terraform-google-gitlab-runner.git"
+  source      = "git@JuanSeBestia/terraform-google-gitlab-runner.git"
 
   gcp_project = var.gcp_project
   gcp_zone    = var.gcp_zone
